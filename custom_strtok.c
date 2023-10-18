@@ -89,5 +89,5 @@ char *_custom_strchr(const char *s, int c)
 		s++;
 	}
 
-	return (char *s);
+	return ((char *)s);
 }
