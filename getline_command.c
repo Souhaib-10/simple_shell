@@ -1,22 +1,45 @@
 #include "shell.h"
 /**
- * _getline_command - print "#cisfun$ " and wait for the user type something.
- * Return: line of string input for user
- */
-
-char *_getline_command(void)
+ * find_command - finds command to execute in path routes.
+ *
+ * @command: first position of getline input.
+ *
+ * Return: string of folder for command to be executed.
+ **/
+char *find_command(char *command)
 {
-	char *lineptr = NULL;
-	size_t charter_user = 0;
+	DIR *folder;
+	struct dirent *entry;
+	char *cmd, comp, **str  = malloc(sizeof(char) * 1024);
+	char **split = malloc(sizeof(char) * 1024);
+	int i;
 
-	if (isatty(STDIN_FILENO))
-		write(STDOUT_FILENO, "$ ", 2);
-
-	if (getline(&lineptr, &charter_user, stdin) == -1)
+	while (*environ != NULL)
 	{
-		free(lineptr);
-		return (NULL);
+		if (!(_strcmpdir(*environ, "PATH")))
+		{
+			*str = *environ;
+			for (i = 0; i < 9; i++, split++, str++)
+			{
+				*split = strtok(*str, ":='PATH'");
+				folder = opendir(*split);
+				if (folder == NULL)
+				{
+					perror("Unable to read directory");
+				}
+				while ((entry = readdir(folder)))
+				{
+					cmd = entry->d_name;
+					comp = _strcmpdir(cmd, command);
+					if (comp == 0)
+					{
+						return (*split);
+					}
+					if (cmd == NULL)
+					{
+						perror("Error");
+					}}}}
+		environ++;
 	}
-
-	return (lineptr);
+	return ("Error: Not Found");
 }

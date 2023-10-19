@@ -1,42 +1,48 @@
 #include "shell.h"
 /**
- * fork_exec - function that create a fork
- *@arg: command and values path
- *@av: Has the name of our program
- *@env: environment
- *@lineptr: command line for the user
- *@np: id of proces
- *@c: Checker add new test
- *Return: 0 success
+ * execute_proc - similar to puts in C
+ * @cmd: a pointer the integer we want to set to 402
+ *
+ * Return: int
  */
-
-int fork_exec(char **arg, char **av, char **env, char *lineptr, int np, int c)
-
+void execute_proc(char **cmd)
 {
-	pid_t child;
-	int status;
-	char *format = "%s: %d: %s: not found\n";
 
-	child = fork();
+	char *parametro = (*(cmd + 1));
+	char *s, *slash = "/";
+	char *o;
 
-	if (child == 0)
+	char *vartoprint = *cmd;
+	char *argv[4];
+
+	if ((access(cmd[0], F_OK) == 0))
 	{
-		if (execve(arg[0], arg, env) == -1)
+		argv[0] = cmd[0];
+		argv[1] = parametro;
+		argv[2] = ".";
+		argv[3] = NULL;
+
+		if (execve(argv[0], argv, NULL) == -1)
 		{
-			fprintf(stderr, format, av[0], np, arg[0]);
-			if (!c)
-				free(arg[0]);
-			free(arg);
-			free(lineptr);
-			exit(errno);
+			perror("Error");
 		}
 	}
 	else
 	{
-		wait(&status);
+		o = find_command(vartoprint);
 
-		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-			return (WEXITSTATUS(status));
+		slash = str_concat(o, slash);
+
+		s = str_concat(slash, *cmd);
+
+		argv[0] = s;
+		argv[1] = parametro;
+		argv[2] = ".";
+		argv[3] = NULL;
+
+		if (execve(argv[0], argv, NULL) == -1)
+		{
+			perror("Error");
+		}
 	}
-	return (0);
 }

@@ -1,110 +1,98 @@
 #include "shell.h"
 /**
- *_strcat - copy string to another string.
- *@dest: char
- *@src: char
- *Return: dest
- *
+ * lookforslash - identifies if first char is a slash.
+ * @cmd: first string
+ * Return: 1 if yes 0 if no.
  */
-
-char *_strcat(char *dest, char *src)
+int lookforslash(char *cmd)
 {
-	int d = 0;
-	int s = 0;
+	int cont = 0;
 
-	while (dest[d] != '\0')
+	while (cmd[cont])
 	{
-		d++;
-	}
-	while (src[s] != '\0')
-	{
-		dest[d] = src[s];
-		d++;
-		s++;
-	}
-	dest[d] = '\0';
-	return (dest);
-}
-
-/**
- * _strcmp - compare the values of a string
- * @s1: character
- * @s2: character
- * Return: 0
- */
-
-int _strcmp(char *s1, char *s2)
-{
-	int a;
-
-	for (a = 0; s1[a] != '\0' && s2[a] != '\0'; a++)
-	{
-		if (s1[a] != s2[a])
-			return ((int)s1[a] - s2[a]);
-	}
-	return (0);
-}
-
-/**
- * _strlen - copies the string pointed to by src into dest
- * @s: A pointer
- * Return: char pointer to dest
- */
-
-int _strlen(char *s)
-{
-	int ch = 0;
-
-	while (*(s + ch) != '\0')
-	{
-		ch++;
-	}
-
-	return (ch);
-}
-
-/**
- *_strncmp -  function that compares two strings.
- *@s1: string one
- *@s2: string two
- *@n: number of characters
- * Return: diference
- */
-
-size_t _strncmp(char *s1, char *s2, size_t n)
-{
-	size_t i, j;
-
-	for (j = 0; s1[j] != '\0' && j < n; j++)
-	{
-		i = s1[j] - s2[j];
-
-		if (i != 0)
+		if (cmd[0] == '/')
 		{
-			return (i);
+			printf("%c\n", cmd[0]);
+			return (1);
 		}
+
+		cont++;
 	}
 	return (0);
 }
 
 /**
- * _strcpy - copies the string pointed to by src into dest
- * @dest: destination of the copy
- * @src: source of the copy
- *
- * Return: char pointer to dest
+ * compareExit - identifies if first char is a slash.
+ * @s1: first string
+ * @s2: exit string
+ * Return: 1 if yes 0 if no.
  */
-
-char *_strcpy(char *dest, char *src)
+int compareExit(char *s1, char *s2)
 {
 	int i = 0;
 
-	while (*(src + i) != '\0')
+	for (; (*s2 != '\0' && *s1 != '\0') && *s1 == *s2; s1++)
 	{
-		*(dest + i) = *(src + i);
-		++i;
+		if (i == 3)
+			break;
+		i++;
+		s2++;
 	}
-	*(dest + i) = *(src + i);
 
-	return (dest);
+	return (*s1 - *s2);
+}
+
+/**
+ * compareEnv - identifies if first char is a slash.
+ * @s1: first string
+ * @s2: exit string
+ * Return: 1 if yes 0 if no.
+ */
+int compareEnv(char *s1, char *s2)
+{
+	int i = 0;
+
+	for (; (*s2 != '\0' && *s1 != '\0') && *s1 == *s2; s1++)
+	{
+		if (i == 2)
+			break;
+		i++;
+		s2++;
+	}
+
+	return (*s1 - *s2);
+}
+/**
+ * identify_string - identyfy keyboard input.
+ * @parameter: call prompt from another function (prompt)
+ * Return: str
+ **/
+char **identify_string(char *parameter)
+{
+	char **buf = malloc(1024 * sizeof(char *));
+	char *split;
+	int i = 0;
+	char *delim = " \t\n";
+
+
+	split = strtok(parameter, delim);
+
+	while (split != NULL)
+	{
+		buf[i] = split;
+		i++;
+		split = strtok(NULL, delim);
+	}
+	execute_proc(buf);
+	return (buf);
+
+}
+/**
+ * controlC - avoid close the shell
+ * @sig: keep going shell
+ **/
+void  controlC(int sig)
+{
+	(void) sig;
+	write(1, "\n$ ", 3);
 }

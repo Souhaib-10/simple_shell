@@ -1,93 +1,102 @@
 #include "shell.h"
+/**
+ * _strcmpdir - compares strings to find dir.
+ *
+ * @s1: string.
+ * @s2: string.
+ *
+ * Return: if match and any other number if otherwise.
+ **/
+int _strcmpdir(char *s1, char *s2)
+{
+	int i = 0;
+
+	for (; (*s2 != '\0' && *s1 != '\0') && *s1 == *s2; s1++)
+	{
+		if (i == 3)
+			break;
+		i++;
+		s2++;
+	}
+
+	return (*s1 - *s2);
+}
+/**
+ * charput - writes the character like putchar
+ * @c: The character to print
+ *
+ * Return: On success 1.
+ * On error, -1 is returned, and errno is set appropriately.
+ */
+int charput(char c)
+{
+	return (write(1, &c, 1));
+}
 
 /**
- * _custom_strtok - Tokenizes a string into tokens using specified delimiters.
- * @str: The string to tokenize.
- * @delim: The delimiter characters.
- * Return: The first/next token if possible, NULL otherwise.
+ * place - similar to puts in C
+ * @str: a pointer the integer we want to set to 402
+ *
+ * Return: int
  */
-char *_custom_strtok(char *str, const char *delim)
+void place(char *str)
 {
-	static char *next;
+	while (*str != '\0')
+	{
+		charput(*str);
+		str++;
+	}
+}
 
-	if (str != NULL)
-		next = str;
-	else if (next == NULL)
+/**
+ * _strlen - Len string.
+ * @str: My string.
+ * Return: Length.
+ */
+int _strlen(char *str)
+{
+	int i;
+
+	for (i = 0; str[i] != '\0'; i++)
+		;
+
+	return (i);
+}
+
+/**
+ * str_concat - concatane strings.
+ * @s1: string.
+ * @s2: second string.
+ * Return: strings.
+ */
+char *str_concat(char *s1, char *s2)
+{
+	char *a;
+	int lens1, lens2, j, i, e;
+
+	if (s1 == NULL)
+		s1 = "";
+
+	if (s2 == NULL)
+		s2 = "";
+
+	lens1 = _strlen(s1);
+
+	lens2 = _strlen(s2);
+
+	a = malloc(((lens1) + (lens2) + 1) * sizeof(char));
+
+	if (a == NULL)
 		return (NULL);
 
-	str = next + _custom_strspn(next, delim);
-	next = str + _custom_strcspn(str, delim);
-
-	if (*next != '\0')
+	for (j = 0; j < lens1; j++)
 	{
-		*next = '\0';
-		next++;
-	}
-	else
-	{
-		next = NULL;
+		a[j] = s1[j];
 	}
 
-	return (str);
-}
-
-/**
- * _custom_strcspn - Computes the length of the maximum initial segment
- * of a string that consists entirely of characters not in another string.
- * @s1: The string to check.
- * @s2: The string used for comparison.
- * Return: The length of the segment.
- */
-size_t _custom_strcspn(const char *s1, const char *s2)
-{
-	size_t length = 0;
-
-	while (*s1 != '\0')
+	for (i = lens1, e = 0; e <= lens2; i++, e++)
 	{
-		if (_custom_strchr(s2, *s1) == NULL)
-			return (length);
-
-		s1++;
-		length++;
+		a[i] = s2[e];
 	}
-
-	return (length);
-}
-
-/**
- * _custom_strspn - Computes the length of the maximum initial segment
- * of a string that consists entirely of characters in another string.
- * @s1: The string to compute the length.
- * @s2: The string used for delimiting.
- * Return: The length of the segment.
- */
-size_t _custom_strspn(const char *s1, const char *s2)
-{
-	size_t length = 0;
-
-	while (*s1 != '\0' && _custom_strchr(s2, *s1) != NULL)
-	{
-		s1++;
-		length++;
-	}
-
-	return (length);
-}
-
-/**
- * _custom_strchr - Locates the first occurrence of a character in a string.
- * @s: The string to search.
- * @c: The character to find.
- * Return: A pointer to the located character, or NULL if not found.
- */
-char *_custom_strchr(const char *s, int c)
-{
-	while (*s != (char)c)
-	{
-		if (*s == '\0')
-			return (NULL);
-		s++;
-	}
-
-	return ((char *)s);
+	return (a);
 }
