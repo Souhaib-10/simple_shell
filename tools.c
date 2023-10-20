@@ -1,98 +1,93 @@
 #include "shell.h"
-/**
- * lookforslash - identifies if first char is a slash.
- * @cmd: first string
- * Return: 1 if yes 0 if no.
- */
-int lookforslash(char *cmd)
-{
-	int cont = 0;
 
-	while (cmd[cont])
+/**
+ * exit_shell - Exits the shell with the specified status.
+ * @info: Structure containing potential arguments.
+ * Return: exits with a given exit status (0) if info->argv[0] != "exit"
+ */
+int exit_shell(info_t *info)
+{
+	int exit_code;
+
+	if (info->argv[1]) /* If there is an exit argument */
 	{
-		if (cmd[0] == '/')
+		exit_code = _erratoi(info->argv[1]);
+		if (exit_code == -1)
 		{
-			printf("%c\n", cmd[0]);
+			info->status = 2;
+			print_error(info, "Illegal number: ");
+			_eputs(info->argv[1]);
+			_eputchar('\n');
 			return (1);
 		}
+		info->err_num = _erratoi(info->argv[1]);
+		return (-2);
+	}
+	info->err_num = -1;
+	return (-2);
+}
 
-		cont++;
+/**
+ * change_directory - Changes the current directory of the process.
+ * @info: Structure containing potential arguments.
+ * Return: Always 0
+ */
+int change_directory(info_t *info)
+{
+	char *current_dir, *new_dir, buffer[1024];
+	int chdir_ret;
+
+	current_dir = getcwd(buffer, 1024);
+	if (!current_dir)
+		_puts("TODO: >>getcwd failure emsg here<<\n");
+	if (!info->argv[1])
+	{
+		new_dir = _getenv(info, "HOME=");
+		if (!new_dir)
+			chdir_ret = chdir((new_dir = _getenv(info, "PWD=")) ? new_dir : "/");
+		else
+			chdir_ret = chdir(new_dir);
+	}
+	else if (_strcmp(info->argv[1], "-") == 0)
+	{
+		if (!_getenv(info, "OLDPWD="))
+		{
+			_puts(current_dir);
+			_putchar('\n');
+			return (1);
+		}
+		_puts(_getenv(info, "OLDPWD="));
+		_putchar('\n');
+		chdir_ret = chdir((new_dir = _getenv(info, "OLDPWD=")) ? new_dir : "/");
+	}
+	else
+		chdir_ret = chdir(info->argv[1]);
+	if (chdir_ret == -1)
+	{
+		print_error(info, "can't cd to ");
+		_eputs(info->argv[1]);
+		_eputchar('\n');
+	}
+	else
+	{
+		_setenv(info, "OLDPWD", _getenv(info, "PWD="));
+		_setenv(info, "PWD", getcwd(buffer, 1024));
 	}
 	return (0);
 }
 
 /**
- * compareExit - identifies if first char is a slash.
- * @s1: first string
- * @s2: exit string
- * Return: 1 if yes 0 if no.
+ * show_help - Display a help message.
+ * @info: Structure containing potential arguments.
+ * Return: Always 0
  */
-int compareExit(char *s1, char *s2)
+int show_help(info_t *info)
 {
-	int i = 0;
+	char **arg_array;
 
-	for (; (*s2 != '\0' && *s1 != '\0') && *s1 == *s2; s1++)
-	{
-		if (i == 3)
-			break;
-		i++;
-		s2++;
-	}
-
-	return (*s1 - *s2);
-}
-
-/**
- * compareEnv - identifies if first char is a slash.
- * @s1: first string
- * @s2: exit string
- * Return: 1 if yes 0 if no.
- */
-int compareEnv(char *s1, char *s2)
-{
-	int i = 0;
-
-	for (; (*s2 != '\0' && *s1 != '\0') && *s1 == *s2; s1++)
-	{
-		if (i == 2)
-			break;
-		i++;
-		s2++;
-	}
-
-	return (*s1 - *s2);
-}
-/**
- * identify_string - identyfy keyboard input.
- * @parameter: call prompt from another function (prompt)
- * Return: str
- **/
-char **identify_string(char *parameter)
-{
-	char **buf = malloc(1024 * sizeof(char *));
-	char *split;
-	int i = 0;
-	char *delim = " \t\n";
-
-
-	split = strtok(parameter, delim);
-
-	while (split != NULL)
-	{
-		buf[i] = split;
-		i++;
-		split = strtok(NULL, delim);
-	}
-	execute_proc(buf);
-	return (buf);
-
-}
-/**
- * controlC - avoid close the shell
- * @sig: keep going shell
- **/
-void  controlC(int sig)
-{
-	(void) sig;
-	write(1, "\n$ ", 3);
+	arg_array = info->argv;
+	_puts("help call works. Function not yet implemented\n");
+	if (0)
+		_puts(*arg_array); /* Temp att_unused workaround */
+	return (0);
 }
